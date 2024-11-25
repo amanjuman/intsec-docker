@@ -28,7 +28,6 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     apt-utils \
     bc \
     coreutils \
-    curl \
     jq \
     libcurl4-openssl-dev \
     libjson-c-dev \
