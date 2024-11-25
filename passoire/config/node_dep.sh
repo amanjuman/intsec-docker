@@ -26,88 +26,57 @@ handle_error() {
   exit $exit_code
 }
 
-# Function to check for command availability
-command_exists() {
-  command -v "$1" &> /dev/null
-}
-
+# Check OS compatibility
 check_os() {
     if ! [ -f "/etc/debian_version" ]; then
-        echo "Error: This script is only supported on Debian-based systems."
-        exit 1
+        handle_error "1" "This script is only supported on Debian-based systems."
     fi
 }
 
-# Function to Install the script pre-requisites
-install_pre_reqs() {
-    log "Installing pre-requisites" "info"
-
-    # Run 'apt-get update'
-    if ! apt-get update -y; then
-        handle_error "$?" "Failed to run 'apt-get update'"
-    fi
-
-    # Run 'apt-get install'
-    if ! apt-get install -y apt-transport-https ca-certificates curl gnupg; then
-        handle_error "$?" "Failed to install packages"
-    fi
-
-    if ! mkdir -p /usr/share/keyrings; then
-      handle_error "$?" "Makes sure the path /usr/share/keyrings exist or run ' mkdir -p /usr/share/keyrings' with sudo"
-    fi
-
-    rm -f /usr/share/keyrings/nodesource.gpg || true
-    rm -f /etc/apt/sources.list.d/nodesource.list || true
-
-    # Run 'curl' and 'gpg' to download and import the NodeSource signing key
-    if ! curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg; then
-      handle_error "$?" "Failed to download and import the NodeSource signing key"
-    fi
-
-    # Explicitly set the permissions to ensure the file is readable by all
-    if ! chmod 644 /usr/share/keyrings/nodesource.gpg; then
-        handle_error "$?" "Failed to set correct permissions on /usr/share/keyrings/nodesource.gpg"
-    fi
-}
-
-# Function to configure the Repo
-configure_repo() {
+# Install Node.js and dependencies
+install_node() {
     local node_version=$1
 
-    arch=$(dpkg --print-architecture)
-    if [ "$arch" != "amd64" ] && [ "$arch" != "arm64" ] && [ "$arch" != "armhf" ]; then
-      handle_error "1" "Unsupported architecture: $arch. Only amd64, arm64, and armhf are supported."
-    fi
+    log "Installing Node.js v$node_version" "info"
 
-    echo "deb [arch=$arch signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$node_version nodistro main" | tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+    # Update and install required packages
+    apt-get update -y || handle_error $? "Failed to run 'apt-get update'"
+    apt-get install -y apt-transport-https ca-certificates curl gnupg || handle_error $? "Failed to install pre-requisites"
 
-    # N|solid Config
-    echo "Package: nsolid" | tee /etc/apt/preferences.d/nsolid > /dev/null
-    echo "Pin: origin deb.nodesource.com" | tee -a /etc/apt/preferences.d/nsolid > /dev/null
-    echo "Pin-Priority: 600" | tee -a /etc/apt/preferences.d/nsolid > /dev/null
+    # Add NodeSource GPG key
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg || handle_error $? "Failed to download and import NodeSource GPG key"
 
-    # Nodejs Config
-    echo "Package: nodejs" | tee /etc/apt/preferences.d/nodejs > /dev/null
-    echo "Pin: origin deb.nodesource.com" | tee -a /etc/apt/preferences.d/nodejs > /dev/null
-    echo "Pin-Priority: 600" | tee -a /etc/apt/preferences.d/nodejs > /dev/null
+    # Add Node.js repository
+    echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$node_version nodistro main" > /etc/apt/sources.list.d/nodesource.list || handle_error $? "Failed to configure Node.js repository"
 
-    # Run 'apt-get update'
-    if ! apt-get update -y; then
-        handle_error "$?" "Failed to run 'apt-get update'"
+    # Install Node.js
+    apt-get update -y || handle_error $? "Failed to run 'apt-get update' after adding Node.js repository"
+    apt-get install -y nodejs || handle_error $? "Failed to install Node.js"
+}
+
+# Install Node.js dependencies for crypto-helper
+install_node_dependencies() {
+    local app_dir="/passoire/crypto-helper"
+
+    log "Installing Node.js dependencies in $app_dir" "info"
+
+    if [ -f "$app_dir/package.json" ]; then
+        cd "$app_dir" || handle_error $? "Failed to change directory to $app_dir"
+        npm install || handle_error $? "Failed to install Node.js dependencies"
+        log "Node.js dependencies installed successfully in $app_dir" "success"
     else
-        log "Repository configured successfully."
-        log "To install Node.js, run: apt-get install nodejs -y" "info"
-        log "You can use N|solid Runtime as a node.js alternative" "info"
-        log "To install N|solid Runtime, run: apt-get install nsolid -y \n" "success"
+        log "No package.json found in $app_dir. Skipping dependency installation." "info"
     fi
 }
 
 # Define Node.js version
 NODE_VERSION="18.x"
 
-# Check OS
+# Check OS compatibility
 check_os
 
-# Main execution
-install_pre_reqs || handle_error $? "Failed installing pre-requisites"
-configure_repo "$NODE_VERSION" || handle_error $? "Failed configuring repository"
+# Install Node.js and dependencies
+install_node "$NODE_VERSION"
+
+# Install Node.js application dependencies
+install_node_dependencies
