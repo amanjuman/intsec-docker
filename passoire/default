@@ -1,0 +1,50 @@
+server
+{
+	# Listen
+	listen 80;
+	listen [::]:80;
+
+	# Directory & Server Naming
+	root /passoire/web;
+	index index.php index.html;
+	server_name _;
+
+	# Disable Hidden FIle Access Except Lets Encrypt Verification
+	location ~ /\.well-known
+	{
+		allow all;
+	}
+
+	# Nginx Logging
+	access_log /var/log/nginx/passoire-access.log;
+	error_log /var/log/nginx/passoire-error.log warn;
+
+	# Max Upload Size
+	client_max_body_size 100M;
+
+	# Permalink Support
+	location /
+	{
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	# PHP Upsteam
+	location ~ \.php$
+	{
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass CONTAINER_PHP_SOCKET;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		include fastcgi_params;
+	}
+
+	# Proxy API requests to Node.js server
+	location /api/
+	{
+		proxy_pass http://CONTAINER_IP:3002/;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection 'upgrade';
+		proxy_set_header Host $host;
+		proxy_cache_bypass $http_upgrade;
+	}
+}
