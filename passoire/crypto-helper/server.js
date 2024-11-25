@@ -101,12 +101,6 @@ app.post('/decrypt/aes', (req, res) => {
   });
 });
 
-// Old unused API, if you see this, you can remove it.
-app.post('/flag', (req, res) => {
-  const { text, key } = req.body;
-    res.send({ flag: "flag_10 is 00afe53c3adf281f84856992b7a88ece77612e48." });
-});
-
 // Start the server
 app.listen(port, () => {
   console.log(`Crypto API running at http://${host}:${port}`);
