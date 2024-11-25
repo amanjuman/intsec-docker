@@ -7,11 +7,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-# Add a user `admin` with the home directory and set the password
-RUN useradd -m -s /bin/bash admin && \
-    echo 'admin:$6$qqluE.ZYy2z8UiSN$hpxHcW/olIisj/TYv6DY8bmgavSXIQJxAUdtFgaqH9HzstfIt6cBcPYT3buRm8SR7GPGK5JMIScGbKc2kqdsL1' | chpasswd -e && \
-    chown -R admin:admin /home/admin
-
 # Add user for the application
 RUN useradd -ms /bin/bash passoire
 
@@ -53,7 +48,7 @@ RUN cp /usr/bin/ls /usr/bin/lls
 
 # Move and adjust permissions
 RUN [ -f /usr/bin/lls ] && mv /usr/bin/lls /usr/bin/ls || echo "lls does not exist, skipping move" && \
-    chmod 777 /passoire/web/uploads && \
+    chmod 770 /passoire/web/uploads && \
     chown -R passoire /passoire
 
 # Expose ports
