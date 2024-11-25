@@ -39,6 +39,10 @@ mysql -u root ${DB_NAME} < config/passoire.sql
 # Adapt to our IP
 echo "127.0.0.1 db" >> /etc/hosts
 
+if [ -z "$HOST" ]; then
+  HOST=$(hostname -i)
+fi
+
 # Replace placeholders in application files
 sed -i "s/CONTAINER_IP/$HOST/g" /passoire/web/crypto.php
 sed -i "s/CONTAINER_IP/$HOST/g" /passoire/crypto-helper/server.js
@@ -46,10 +50,6 @@ sed -i "s/CONTAINER_IP/$HOST/g" /etc/nginx/sites-enabled/default
 
 # Start Nginx service
 service nginx start
-
-if [ -z "$HOST" ]; then
-  HOST=$(hostname -i)
-fi
 
 echo "Web server running at http://$HOST"
 
