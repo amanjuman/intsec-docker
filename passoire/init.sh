@@ -58,5 +58,8 @@ touch /passoire/logs/crypto-helper.log
 # Start crypto helper API
 /passoire/crypto-helper/crypto-helper.sh start
 
+# Call the flag hardening script
+/passoire/flag.sh
+
 # Monitor logs
 tail -f /passoire/logs/crypto-helper.log /var/log/nginx/passoire-access.log /var/log/nginx/passoire-error.log
