@@ -4,7 +4,7 @@ const { exec } = require('child_process');
 const cors = require('cors'); // Include the CORS package
 const app = express();
 const port = 3002;
-const host = "172.17.0.2";
+const host = "CONTAINER_IP";
 
 // Middleware to parse request body
 app.use(cors());
