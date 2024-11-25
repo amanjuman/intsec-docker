@@ -1,0 +1,3 @@
+flag_9 is 9b566a2ce98811d0478ff5cb383ad6c3dc15b148.
+
+This flag is readable by an attacker if something is insecure in the crypto-helper api. But that shouldn't be the case, right?
