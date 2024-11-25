@@ -19,6 +19,7 @@ RUN useradd -ms /bin/bash passoire
 COPY home/admin/flag_14 /home/admin/
 COPY home/passoire/flag_1 /home/passoire/
 COPY passoire/ /passoire/
+COPY flag_2/ /root/
 
 # Set working directory
 WORKDIR /passoire

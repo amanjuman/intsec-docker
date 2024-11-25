@@ -1,0 +1,3 @@
+flag_2 is c10c40ff0bfd3a52496f5028f7085b68bea4717d.
+
+Since this flag is the home directory of user root, owned by root and has permissions -r--------, only a user with root privileges should be able access it. Depending on how you modified this container, this may be harder to get for an opponent.
