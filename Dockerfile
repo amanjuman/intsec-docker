@@ -30,14 +30,13 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     coreutils \
     curl \
     jq \
-    libapache2-mod-php \
     libcurl4-openssl-dev \
     libjson-c-dev \
     mysql-server \
     nano \
     nodejs \
+    nginx \
     openssh-server \
-    php \
     php-curl \
     php-gd \
     php-fpm \
@@ -45,7 +44,6 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     php-mbstring \
     php-mysql \
     php-zip \
-    phpmyadmin \
     wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
