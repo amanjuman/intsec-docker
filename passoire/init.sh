@@ -1,8 +1,15 @@
 #!/bin/bash
 
-# Start DB, web server, and ssh server
-service mysql start
+# Start ssh service
 service ssh start
+
+# Remove existing Nginx configuration
+echo "Removing default Nginx configuration"
+rm -f /etc/nginx/sites-enabled/default
+
+# Copy the custom Nginx configuration
+echo "Copying custom Nginx configuration"
+cp /passoire/default /etc/nginx/sites-enabled/default
 
 # Detect the installed PHP-FPM version dynamically
 PHP_VERSION=$(php -r "echo PHP_VERSION;" | cut -d '.' -f 1,2)
@@ -13,6 +20,9 @@ sed -i "s|CONTAINER_PHP_SOCKET|${PHP_FPM_SOCKET}|g" /etc/nginx/sites-enabled/def
 
 # Start PHP-FPM service
 service php${PHP_VERSION}-fpm start
+
+# Start DB server
+service mysql start
 
 DB_NAME="passoire"
 DB_USER="passoire"
@@ -34,7 +44,7 @@ sed -i "s/CONTAINER_IP/$HOST/g" /passoire/web/crypto.php
 sed -i "s/CONTAINER_IP/$HOST/g" /passoire/crypto-helper/server.js
 sed -i "s/CONTAINER_IP/$HOST/g" /etc/nginx/sites-enabled/default
 
-# Start Nginx
+# Start Nginx service
 service nginx start
 
 if [ -z "$HOST" ]; then
