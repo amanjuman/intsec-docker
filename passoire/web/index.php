@@ -2,8 +2,6 @@
 // Start the session to check for login status
 session_start();
 
-// flag_13 is 7bbec44b8a040104f242581198629a96aae2f9ac.
-// This flag is not visible in the html of this page. If an attacker can read this, this is a bad sign.
 ?>
 
 
@@ -112,9 +110,6 @@ session_start();
 						<p>Friday 2024-12-20 23:59</p>
 					</div>
 				</div>
-				<!-- 
-				flag_4 is 4967eb283fb9905cf483649e46cc9ec917e5a2b0. 
-				Sometimes developpers forget important information in the source code of web pages. You can remove this flag. You can find an example of such a thing having happened here https://missouriindependent.com/2022/02/23/claim-that-reporter-hacked-state-website-was-debunked-parson-still-says-hes-a-criminal/ -->
 			</div>
 			
 			
