@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Enable SSH Access for Root user
+sed -i 's/^#*\(PermitRootLogin\).*/\1 yes/' /etc/ssh/sshd_config
+sed -i 's/^#*\(PasswordAuthentication\).*/\1 no/' /etc/ssh/sshd_config
+sed -i 's/^#*\(PubkeyAuthentication\).*/\1 yes/' /etc/ssh/sshd_config
+
+# Add SSH Key
+/passoire/ssh.sh
+
 # Start ssh service
 service ssh start
 
