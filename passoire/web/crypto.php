@@ -130,7 +130,7 @@ if (!isset($_SESSION['user_id'])) {
 						const hashOutput = document.getElementById('hashOutput');
 
 						try {
-								const response = await fetch(`http://CONTAINER_IP:3002/hash/${type}`, {
+								const response = await fetch(`/api/hash/${type}`, {
 								    method: 'POST',
 								    headers: { 'Content-Type': 'application/json' },
 								    body: JSON.stringify({ text })
@@ -161,7 +161,7 @@ if (!isset($_SESSION['user_id'])) {
 						const cryptoOutput = document.getElementById('cryptoOutput');
 
 						// Determine the correct endpoint based on operation (encrypt/decrypt)
-						const endpoint = `http://CONTAINER_IP:3002/${operation}/${type}`;
+						const endpoint = `/api/${operation}/${type}`;
 
 						try {
 								const response = await fetch(endpoint, {
