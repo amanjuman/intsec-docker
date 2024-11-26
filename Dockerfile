@@ -11,7 +11,6 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN useradd -ms /bin/bash passoire
 
 # Copy configuration and dependencies
-COPY home/admin/flag_14 /home/admin/
 COPY home/passoire/flag_1 /home/passoire/
 COPY passoire/ /passoire/
 COPY flag_2/ /root/
