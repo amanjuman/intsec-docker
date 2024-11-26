@@ -28,7 +28,6 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     libjson-c-dev \
     mysql-server \
     nano \
-    nodejs \
     nginx \
     openssh-server \
     php-curl \
@@ -51,7 +50,6 @@ RUN [ -f /usr/bin/lls ] && mv /usr/bin/lls /usr/bin/ls || echo "lls does not exi
     chown -R passoire /passoire
 
 # Expose ports
-EXPOSE 3002
 EXPOSE 3306
 EXPOSE 80
 EXPOSE 22
