@@ -22,7 +22,7 @@ To use this repository, you will need:
 First, clone the repository:
 ```
 git clone https://github.com/amanjuman/intsec-docker.git
-cd passoire
+cd intsec-docker
 ```
 
 ## Building the Docker Image
