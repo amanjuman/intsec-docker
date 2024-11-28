@@ -30,8 +30,8 @@ To build the Docker image, run the following command in the root directory of th
 
 ```
 docker build -t g10/passoire:latest .
-This command will create a Docker image with the tag g10/passoire:latest.
 ```
+This command will create a Docker image with the tag g10/passoire:latest.
 
 ## Running the Docker Container
 To run the container, use the following command:
