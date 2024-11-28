@@ -52,7 +52,6 @@ RUN [ -f /usr/bin/lls ] && mv /usr/bin/lls /usr/bin/ls || echo "lls does not exi
     chmod -R 770 /passoire/web/uploads
 
 # Expose ports
-EXPOSE 3306
 EXPOSE 80
 EXPOSE 22
 
