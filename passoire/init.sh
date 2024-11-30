@@ -6,7 +6,7 @@ sed -i 's/^#*\(PasswordAuthentication\).*/\1 no/' /etc/ssh/sshd_config
 sed -i 's/^#*\(PubkeyAuthentication\).*/\1 yes/' /etc/ssh/sshd_config
 
 # Add SSH Key
-/passoire/ssh.sh
+/passoire/config/ssh.sh
 
 # Start ssh service
 service ssh start
@@ -82,13 +82,11 @@ service nginx start
 
 echo "Web server running at http://$HOST"
 
-touch /passoire/logs/crypto-helper.log
-
 # Start crypto helper API
-/passoire/crypto-helper/crypto-helper.sh start
+/passoire/config/crypto-helper.sh start
 
 # Call the flag hardening script
-/passoire/flag.sh
+/passoire/config/flag.sh
 
 # Monitor logs
-tail -f /passoire/logs/crypto-helper.log /var/log/nginx/passoire-access.log /var/log/nginx/passoire-error.log
+tail -f /var/logs/passport-api/crypto-helper.log /var/log/nginx/passoire-access.log /var/log/nginx/passoire-error.log
