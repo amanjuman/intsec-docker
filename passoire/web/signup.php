@@ -9,13 +9,18 @@ function hashPassword($password) {
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $login = $_POST['login'];
-    $email = $_POST['email'];
+    // Sanitize inputs
+    $login = htmlspecialchars(trim($_POST['login']));
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
     $password = $_POST['password'];
     $password_confirm = $_POST['password_confirm'];
 
-    // Validate passwords
-    if ($password !== $password_confirm) {
+    // Password validation
+    if (!preg_match('/^(?=.*[A-Z])(?=.*\d).{6,}$/', $password)) {
+        $error = "<p class=\"error\">Password must be at least 6 characters long and contain at least one uppercase letter and one number.</p>";
+    }
+    // Continue with existing password match validation
+    else if ($password !== $password_confirm) {
         $error = "<p class=\"error\">Passwords do not match. Please try again.</p>";
     } else {
         // Check if the login or email already exists

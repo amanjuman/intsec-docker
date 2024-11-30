@@ -5,42 +5,64 @@ include 'db_connect.php';
 // Start the session to track user login status
 session_start();
 
+// Initialize rate limiting variables
+if (!isset($_SESSION['login_attempts'])) {
+    $_SESSION['login_attempts'] = 0;
+    $_SESSION['last_attempt_time'] = time();
+}
+
+// Reset attempts after 1 minute
+if ((time() - $_SESSION['last_attempt_time']) > 60) {
+    $_SESSION['login_attempts'] = 0;
+    $_SESSION['last_attempt_time'] = time();
+}
+
 // Initialize an error message variable
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $login = $_POST['login'];
-    $password = $_POST['password'];
-
-    // Check if login and password are provided
-    if (!empty($login) && !empty($password)) {
-        // Fetch the user from the database
-        $sql = "SELECT id, pwhash FROM users WHERE login = \"" . $login . "\"";
-
-				// Execute query
-				$result = $conn->query($sql);
-
-				if ($result->num_rows > 0) {
-						// Fetch the first row of results into an array
-						$user = $result->fetch_assoc();
-				} else {
-						echo "No results found.";
-				}
-
-        // If the user exists and the password matches
-        if ($user && (sha1($password) == $user['pwhash'])) {
-            // Set the session variable
-            $_SESSION['user_id'] = $user['id'];
-            // Redirect to a different page (e.g., profile.php)
-            header('Location: index.php');
-            exit();
-        } elseif(!($user)) {
-            $error = 'Invalid login. Please try again.';
-        } else {
-            $error = 'Invalid password. Please try again.';
-        }
+    // Check rate limit
+    if ($_SESSION['login_attempts'] >= 3) {
+        $time_left = 60 - (time() - $_SESSION['last_attempt_time']);
+        $error = "Too many login attempts. Please wait {$time_left} seconds before trying again.";
     } else {
-        $error = 'Please fill in both fields.';
+        $login = $_POST['login'];
+        $password = $_POST['password'];
+
+        // Check if login and password are provided
+        if (!empty($login) && !empty($password)) {
+            // Increment attempt counter
+            $_SESSION['login_attempts']++;
+            $_SESSION['last_attempt_time'] = time();
+
+            // Fetch the user from the database
+            $sql = "SELECT id, pwhash FROM users WHERE login = \"" . $login . "\"";
+
+            // Execute query
+            $result = $conn->query($sql);
+
+            if ($result->num_rows > 0) {
+                // Fetch the first row of results into an array
+                $user = $result->fetch_assoc();
+            } else {
+                echo "No results found.";
+            }
+
+            // If the user exists and the password matches
+            if ($user && (sha1($password) == $user['pwhash'])) {
+                // Set the session variable
+                $_SESSION['user_id'] = $user['id'];
+                // Redirect to a different page (e.g., profile.php)
+                header('Location: index.php');
+                exit();
+            } elseif(!($user)) {
+                $error = 'Invalid login. Please try again.';
+            } else {
+                $error = 'Invalid password. Please try again.';
+            }
+        } else {
+            $error = 'Please fill in both fields.';
+        }
     }
 }
 ?>
