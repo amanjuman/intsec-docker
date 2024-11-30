@@ -45,11 +45,7 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
 RUN cp /usr/bin/ls /usr/bin/lls
 
 # Adjust permissions and ownership
-RUN [ -f /usr/bin/lls ] && mv /usr/bin/lls /usr/bin/ls || echo "lls does not exist, skipping move" && \
-    chown -R passoire /passoire && \
-    chown -R www-data:passoire /passoire/web && \
-    chmod -R 750 /passoire/web && \
-    chmod -R 770 /passoire/web/uploads
+RUN [ -f /usr/bin/lls ] && mv /usr/bin/lls /usr/bin/ls || echo "lls does not exist, skipping move"
 
 # Expose ports
 EXPOSE 80
