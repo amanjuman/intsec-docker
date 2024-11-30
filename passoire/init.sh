@@ -11,20 +11,27 @@ sed -i 's/^#*\(PubkeyAuthentication\).*/\1 yes/' /etc/ssh/sshd_config
 # Start ssh service
 service ssh start
 
+# Generate Diffie-Hellman keys
+openssl dhparam -dsaparam -out /etc/ssl/dhparam.pem 2048
+
 # Remove existing Nginx configuration
-echo "Removing default Nginx configuration"
+#echo "Removing default Nginx configuration"
+#rm -f /etc/nginx/nginx.conf
+echo "Removing Nginx Default vhost configuration"
 rm -f /etc/nginx/sites-enabled/default
 
 # Copy the custom Nginx configuration
-echo "Copying custom Nginx configuration"
-cp /passoire/default /etc/nginx/sites-enabled/default
+#echo "Copying custom Nginx configuration"
+#cp /passoire/config/nginx.conf /etc/nginx/
+echo "Copying Passoire Nginx vhost configuration"
+cp /passoire/config/passoire-nginx.conf /etc/nginx/conf.d/
 
 # Detect the installed PHP-FPM version dynamically
 PHP_VERSION=$(php -r "echo PHP_VERSION;" | cut -d '.' -f 1,2)
 PHP_FPM_SOCKET="unix:/var/run/php/php${PHP_VERSION}-fpm.sock"
 
 # Replace the PHP-FPM socket placeholder in the Nginx config
-sed -i "s|CONTAINER_PHP_SOCKET|${PHP_FPM_SOCKET}|g" /etc/nginx/sites-enabled/default
+sed -i "s|CONTAINER_PHP_SOCKET|${PHP_FPM_SOCKET}|g" /etc/nginx/conf.d/passoire-nginx.conf
 
 # Start PHP-FPM service
 service php${PHP_VERSION}-fpm start
@@ -54,7 +61,7 @@ fi
 # Replace placeholders in application files
 sed -i "s/CONTAINER_IP/$HOST/g" /passoire/web/crypto.php
 sed -i "s/CONTAINER_IP/$HOST/g" /passoire/crypto-helper/server.js
-sed -i "s/CONTAINER_IP/$HOST/g" /etc/nginx/sites-enabled/default
+sed -i "s/CONTAINER_IP/$HOST/g" /etc/nginx/conf.d/passoire-nginx.conf
 
 # Start Nginx service
 service nginx start
