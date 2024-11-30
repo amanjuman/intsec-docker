@@ -39,17 +39,25 @@ service php${PHP_VERSION}-fpm start
 # Start DB server
 service mysql start
 
-DB_NAME="passoire"
-DB_USER="passoire"
-DB_PASSWORD=$(head -n 1 /passoire/config/db_pw)
+# Database configuration
+DB_NAME="passoire_db"
+DB_USER="passoire_user"
+# Generates a secure random password
+DB_PASSWORD=$(openssl rand -base64 16)
 
 # Initialize database
 echo "Creating MySQL database and user..."
-mysql -u root -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
 mysql -u root -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
-mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${DB_USER}'@'localhost' WITH GRANT OPTION;"
+mysql -u root -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';"
 mysql -u root -e "FLUSH PRIVILEGES;"
 mysql -u root ${DB_NAME} < config/passoire.sql
+
+# Replace database information in configuration files
+echo "Configuring application database connection..."
+sed -i "s|'db_name'|'${DB_NAME}'|g" /passoire/web/db_connect.php
+sed -i "s|'db_user'|'${DB_USER}'|g" /passoire/web/db_connect.php
+sed -i "s|'db_user_password'|'${DB_PASSWORD}'|g" /passoire/web/db_connect.php
 
 # Adapt to our IP
 echo "127.0.0.1 db" >> /etc/hosts

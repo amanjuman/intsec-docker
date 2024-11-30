@@ -1,9 +1,9 @@
 <?php
 // Database credentials
 $host = 'db'; //This can be a url, here it is an alias for localhost set in /etc/hosts
-$dbname = 'passoire';
-$username = 'passoire';
-$password = 'abc123';
+$dbname = 'db_name';
+$username = 'db_user';
+$password = 'db_user_password';
 
 
 $conn = new mysqli($host, $username, $password, $dbname);
