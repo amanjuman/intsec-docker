@@ -15,14 +15,14 @@ service ssh start
 openssl dhparam -dsaparam -out /etc/ssl/dhparam.pem 2048
 
 # Remove existing Nginx configuration
-#echo "Removing default Nginx configuration"
-#rm -f /etc/nginx/nginx.conf
+echo "Removing default Nginx configuration"
+rm -f /etc/nginx/nginx.conf
 echo "Removing Nginx Default vhost configuration"
 rm -f /etc/nginx/sites-enabled/default
 
 # Copy the custom Nginx configuration
-#echo "Copying custom Nginx configuration"
-#cp /passoire/config/nginx.conf /etc/nginx/
+echo "Copying custom Nginx configuration"
+cp /passoire/config/nginx.conf /etc/nginx/
 echo "Copying Passoire Nginx vhost configuration"
 cp /passoire/config/passoire-nginx.conf /etc/nginx/conf.d/
 
