@@ -8,34 +8,42 @@
 
 		// Handle new message submission
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-				if (isset($_SESSION['user_id'])) {
-				    $user_id = $_SESSION['user_id'];
-				    $content = trim($_POST['content']);
+		if (isset($_SESSION['user_id'])) {
+			$user_id = (int)$_SESSION['user_id'];
+			$content = trim($_POST['contents']);
 
-				    // Check if message content is not empty
-				    if (!empty($content)) {
-				        // Insert the new message into the database
-				        $sql = "INSERT INTO messages (authorid, content, date) VALUES ('" . $user_id . "', '" . $content . "', NOW())";
-				        $conn->query($sql);
-				        
-				        $message = 'Message posted successfully!';
-				    } else {
-				        $error = 'Message content cannot be empty.';
-				    }
-				} else {
-				    $error = 'You need to be logged in to post a message.';
-				}
+			// Check if message content is not empty
+			if (!empty($content)) {
+				// Insert the new message into the database
+				$sql = "INSERT INTO messages (authorid, content, date) VALUES ('" . $user_id . "', '" . $content . "', NOW())";
+				$conn->query($sql);
+				
+				$message = 'Message posted successfully!';
+			} else {
+				$error = 'Message content cannot be empty.';
+			}
+		} else {
+			$error = 'You need to be logged in to post a message.';
+		}
 		}
 	
 	// Pagination
-	$limit = isset($_GET['limit']) ? $_GET['limit'] : 10; // Number of messages per page
-	$page = isset($_GET['page']) ? $_GET['page'] : 1;
+	$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10; // Number of messages per page
+	$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 	$offset = ($page - 1) * $limit;
 	// Fetch messages for the current page
-	if(isset($_GET['filter']) && strlen($_GET['filter']) > 0) {
-		$sql2 = "SELECT m.id, m.content, m.date, u.login, i.avatar FROM messages m JOIN users u ON m.authorid = u.id JOIN userinfos i ON u.id = i.userid WHERE u.login='" . $_GET['filter'] . "' ORDER BY date DESC, id DESC LIMIT " . $limit . " OFFSET " . $offset . "";
+	if(isset($_GET['filter']) && strlen((int)$_GET['filter']) > 0) {
+		$sql2 = "SELECT m.id, m.content, m.date, u.login, i.avatar 
+		FROM messages m 
+		JOIN users u ON m.authorid = u.id 
+		JOIN userinfos i ON u.id = i.userid 
+		WHERE u.login='" . htmlspecialchars($_GET['filter'], ENT_QUOTES, 'UTF=8') . "' ORDER BY date DESC, id DESC LIMIT " . $limit . " OFFSET " . $offset . "";
 	} else {
-		$sql2 = "SELECT m.id, m.content, m.date, u.login, i.avatar FROM messages m JOIN users u ON m.authorid = u.id JOIN userinfos i ON u.id = i.userid ORDER BY date DESC, id DESC LIMIT " . $limit . " OFFSET " . $offset . "";
+		$sql2 = "SELECT m.id, m.content, m.date, u.login, i.avatar 
+		FROM messages m 
+		JOIN users u ON m.authorid = u.id 
+		JOIN userinfos i ON u.id = i.userid 
+		ORDER BY date DESC, id DESC LIMIT " . $limit . " OFFSET " . $offset . "";
 	}
 	
 	$result = $conn->query($sql2);
@@ -72,10 +80,8 @@
 		<div class="w3-container w3-card w3-white w3-round w3-margin-right w3-margin-left w3-margin-bottom"><br>
   		<form action="index.php" method="post">
 			  <h6 class="w3-opacity">Publish a message on the public board:</h6>
-			  <textarea name="content" contenteditable="true" class="w3-border w3-padding"  style="width: 100%; box-sizing: border-box;" required>Your message.</textarea><br />
-			  <div class="w3-margin"></div>
-			  <button type="submit" class="w3-button w3-theme w3-padding"><i class="fa fa-pencil"></i>  Post</button> 
-			  <div class="w3-margin"></div>
+			  <textarea name="contents" class="w3-border w3-padding"  style="width: 100%; box-sizing: border-box;" required>Your message.</textarea><br>
+			  <button type="submit" class="w3-button w3-theme w3-padding"><i class="fa fa-pencil"></i>  Post</button>
   		</form>
     </div>
 <?php else: ?>
