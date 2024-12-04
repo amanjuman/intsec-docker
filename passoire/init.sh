@@ -40,7 +40,7 @@ service php${PHP_VERSION}-fpm start
 
 # Start DB server
 echo "Starting MySQL service"
-service mysql start
+service mariadb start
 
 # Database configuration
 DB_NAME="passoire_db"

@@ -26,7 +26,7 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     jq \
     libcurl4-openssl-dev \
     libjson-c-dev \
-    mysql-server \
+    mariadb-server \
     nano \
     nginx \
     openssh-server \
