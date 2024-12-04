@@ -10,14 +10,14 @@ if (!isset($_GET['file'])) {
     exit();
 }
 
-// Get the hash value from the query string
-$hash = $_GET['file'];
+// Get the hash value from the query string and provide xss protection
+$hash = htmlspecialchars($_GET['file'], ENT_QUOTES, 'UTF-8');
 
 // Prepare and execute a query to find the corresponding file for the given hash
 
 $sql = "SELECT f.path, f.type FROM links l JOIN files f ON l.fileid = f.id WHERE l.hash = \"" . $hash . "\" LIMIT 1";
 
-// Execute query
+// Execute queryfi
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
