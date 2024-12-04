@@ -56,6 +56,31 @@ mysql -u root -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'loca
 mysql -u root -e "FLUSH PRIVILEGES;"
 mysql -u root ${DB_NAME} < config/passoire.sql
 
+# Generate a secure random password
+DB_ROOT_PASSWORD=$(openssl rand -base64 16)
+
+# Secure MariaDB installation
+echo "Running MariaDB secure installation..."
+mysql_secure_installation <<EOF
+y
+2
+y
+y
+y
+y
+EOF
+
+# Check if 'auth_socket' is used for root and switch to password authentication
+echo "Configuring MariaDB root password..."
+mysql -e "SELECT user, host, plugin FROM mysql.user WHERE user = 'root';" | grep -q 'auth_socket'
+if [ $? -eq 0 ]; then
+    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_ROOT_PASSWORD'; FLUSH PRIVILEGES;"
+else
+    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_ROOT_PASSWORD'; FLUSH PRIVILEGES;"
+fi
+
+echo "MariaDB installation and configuration completed successfully!"
+
 # Replace database information in configuration files
 echo "Configuring application database connection..."
 sed -i "s|'db_name'|'${DB_NAME}'|g" /passoire/web/db_connect.php
