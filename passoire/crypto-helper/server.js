@@ -48,7 +48,7 @@ app.post('/hash/:type', (req, res) => {
 app.post('/encrypt/des', (req, res) => {
   const { text, key } = req.body;
 
-	const cmd =`openssl des-ecb -e -K ${key} -in <(echo "${text}") -provider legacy -provider default -base64`;
+	const cmd =`openssl des-ecb -e -K ${key} -in <(echo "${text}") -base64`;
   console.log(cmd);
   exec(cmd,{shell: '/bin/bash'}, (error, stdout) => {
     if (error) {
@@ -63,7 +63,7 @@ app.post('/decrypt/des', (req, res) => {
   const { text, key } = req.body;
 
 
-	const cmd =`openssl des-ecb -d -K ${key} -in <(echo "${text}") -provider legacy -provider default -base64`;
+	const cmd =`openssl des-ecb -d -K ${key} -in <(echo "${text}") -base64`;
   console.log(cmd);
   exec(cmd,{shell: '/bin/bash'}, (error, stdout) => {
     if (error) {
