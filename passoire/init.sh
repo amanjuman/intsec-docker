@@ -31,12 +31,15 @@ PHP_VERSION=$(php -r "echo PHP_VERSION;" | cut -d '.' -f 1,2)
 PHP_FPM_SOCKET="unix:/var/run/php/php${PHP_VERSION}-fpm.sock"
 
 # Replace the PHP-FPM socket placeholder in the Nginx config
+echo "Replacing PHP Upstream"
 sed -i "s|CONTAINER_PHP_SOCKET|${PHP_FPM_SOCKET}|g" /etc/nginx/conf.d/passoire-nginx.conf
 
 # Start PHP-FPM service
+echo "Starting PHP Service"
 service php${PHP_VERSION}-fpm start
 
 # Start DB server
+echo "Starting MySQL service"
 service mysql start
 
 # Database configuration
@@ -89,4 +92,4 @@ echo "Web server running at http://$HOST"
 /passoire/config/flag.sh
 
 # Monitor logs
-tail -f /var/logs/passport-api/crypto-helper.log /var/log/nginx/passoire-access.log /var/log/nginx/passoire-error.log
+tail -f /var/logs/passoire-api/crypto-helper.log /var/log/nginx/passoire-access.log /var/log/nginx/passoire-error.log
