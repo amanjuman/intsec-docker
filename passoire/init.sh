@@ -92,4 +92,4 @@ echo "Web server running at http://$HOST"
 /passoire/config/flag.sh
 
 # Monitor logs
-tail -f /var/logs/passoire-api/crypto-helper.log /var/log/nginx/passoire-access.log /var/log/nginx/passoire-error.log
+tail -f /var/log/passoire-api/crypto-helper.log /var/log/nginx/passoire-access.log /var/log/nginx/passoire-error.log

@@ -2,7 +2,7 @@
 
 # Configuration
 NODE_SERVER_FILE="/passoire/crypto-helper/server.js"
-LOG_DIR="/var/log/passport-api"
+LOG_DIR="/var/log/passoire-api"
 LOG_FILE="$LOG_DIR/crypto-helper.log"
 PID_FILE="$LOG_DIR/crypto-helper.pid"
 
