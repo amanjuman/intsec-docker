@@ -44,11 +44,15 @@ session_start();
 			// Get user ID
 			$user_id = $_SESSION['user_id'];
 
-			// Fetch current user info from the database
-      $sql = "SELECT u.login, u.email, ui.birthdate, ui.location, ui.bio, ui.avatar FROM users u LEFT JOIN userinfos ui ON u.id = ui.userid WHERE u.id = \"" . $user_id . "\"";
-
-			// Execute query
-			$result = $conn->query($sql);
+			// Use prepared statement
+			$sql = "SELECT u.login, u.email, ui.birthdate, ui.location, ui.bio, ui.avatar 
+					FROM users u 
+					LEFT JOIN userinfos ui ON u.id = ui.userid 
+					WHERE u.id = ?";
+			$stmt = $conn->prepare($sql);
+			$stmt->bind_param("i", $user_id);
+			$stmt->execute();
+			$result = $stmt->get_result();
 
 			if ($result->num_rows > 0) {
 					// Fetch the first row of results into an array
