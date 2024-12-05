@@ -6,7 +6,7 @@ include 'db_connect.php';
 function hashPassword($password) {
 	// Use password_hash() for secure password storage
 	// sha1 is not recommended for new applications as it is cryptographically broken
-    return password_hash($password);
+    return password_hash($password, PASSWORD_DEFAULT);
 }
 
 // Handle form submission
