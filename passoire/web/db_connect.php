@@ -1,19 +1,24 @@
 <?php
-// Database credentials
-$host = 'db'; //This can be a url, here it is an alias for localhost set in /etc/hosts
-$dbname = 'db_name';
-$username = 'db_user';
-$password = 'db_user_password';
 
+//Using PDO for more secure database connections
+try {
+    $host = 'db';
+    $dbname = 'db_name';
+    $username = 'db_user';
+    $password = 'db_user_password';
 
-$conn = new mysqli($host, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    $conn = new PDO(
+        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ]
+    );
+} catch(PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
 }
-
-
-/* TODO: Replace old SQL connector with modern PDO and prepared statements.*/
 ?>
 
