@@ -44,11 +44,15 @@ session_start();
 			// Get user ID
 			$user_id = $_SESSION['user_id'];
 
-			// Fetch current user info from the database
-      $sql = "SELECT u.login, u.email, ui.birthdate, ui.location, ui.bio, ui.avatar FROM users u LEFT JOIN userinfos ui ON u.id = ui.userid WHERE u.id = \"" . $user_id . "\"";
-
-			// Execute query
-			$result = $conn->query($sql);
+			// Use prepared statement
+			$sql = "SELECT u.login, u.email, ui.birthdate, ui.location, ui.bio, ui.avatar 
+					FROM users u 
+					LEFT JOIN userinfos ui ON u.id = ui.userid 
+					WHERE u.id = ?";
+			$stmt = $conn->prepare($sql);
+			$stmt->bind_param("i", $user_id);
+			$stmt->execute();
+			$result = $stmt->get_result();
 
 			if ($result->num_rows > 0) {
 					// Fetch the first row of results into an array
@@ -67,12 +71,12 @@ session_start();
 					
 				<?php if (isset($_SESSION['user_id'])): ?>
 						
-					 <h4 class="w3-center"><?php echo $user['login']?></h4>
+					 <h4 class="w3-center"><?php echo htmlspecialchars($user['login'], ENT_QUOTES, 'UTF-8'); ?></h4>
 					 <p class="w3-center"><img src="<?php echo $user['avatar']?>" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
 					 <hr>
-					 <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i> <?php echo $user['bio']?></p>
-					 <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo $user['location']?></p>
-					 <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> <?php echo $user['birthdate']?></p>
+					 <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i> <?php echo htmlspecialchars($user['bio'], ENT_QUOTES, 'UTF-8'); ?></p>
+					 <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo htmlspecialchars($user['location'], ENT_QUOTES, 'UTF-8'); ?></p>
+					 <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> <?php echo htmlspecialchars($user['birthdate'], ENT_QUOTES, 'UTF-8'); ?></p>
 				<?php else: ?>
 					 <h4 class="w3-center">Not Connected</h4>
 					 <hr>
