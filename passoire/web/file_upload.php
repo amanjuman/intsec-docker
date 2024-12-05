@@ -3,8 +3,19 @@
 include 'db_connect.php';
 session_start();
 
+// Generate a CSRF token
+function generateCSRFToken() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die('CSRF token validation failed');
+    }
     if (isset($_FILES['file']) && isset($_SESSION['user_id'])) {
         $ownerid = $_SESSION['user_id'];
         $file = $_FILES['file'];
@@ -85,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 					  <?php endif; ?>
 
 					  <form id="upload-form" action="file_upload.php" method="post" enctype="multipart/form-data" style="padding-bottom: 25px; border: 2px dotted darkgrey; margin-bottom: 25px; min-height: 200px;">
+					      <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 					      <div class="drop-zone" id="drop-zone">
 					          <p id="drop-zone-file">Drag & Drop files here or click to select a file</p>
 					      		<input type="file" name="file" id="file-input" style="display:none;">
