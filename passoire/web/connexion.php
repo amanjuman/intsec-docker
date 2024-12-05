@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             // If the user exists and the password matches
-            if ($user && (password_hash($password, PASSWORD_DEFAULT) == $user['pwhash'])) {
+            if ($user && (sha1($password) == $user['pwhash'])) {
                 // Set the session variable
                 $_SESSION['user_id'] = $user['id'];
                 // Redirect to a different page (e.g., profile.php)
