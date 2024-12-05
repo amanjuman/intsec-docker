@@ -99,12 +99,6 @@ sed -i "s/CONTAINER_IP/$HOST/g" /passoire/web/crypto.php
 sed -i "s/CONTAINER_IP/$HOST/g" /passoire/crypto-helper/server.js
 sed -i "s/CONTAINER_IP/$HOST/g" /etc/nginx/conf.d/passoire-nginx.conf
 
-# Fix directory permission
-chown -R www-data:www-data /passoire/web
-find /passoire/web -type d -exec chmod 0755 {} \;
-find /passoire/web -type f -exec chmod 0644 {} \;
-chmod 000 /passoire/web/uploads/flag_6;
-
 # Start Nginx service
 service nginx start
 
