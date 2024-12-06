@@ -1,6 +1,8 @@
 <?php
 // Include the database connection
 include 'db_connect.php';
+include_once 'input_validation.php';
+
 
 // Start the session to track user login status
 session_start();
@@ -30,7 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $password = $_POST['password'];
 
         // Check if login and password are provided
-        if (!empty($login) && !empty($password)) {
+        // vulnerability detected: SQL Injection
+            // Validate login input
+        $validated_login = validateInput($login, 'email', 25);
+        $validated_pass = validateInput($password, 'string', 15);
+
+        // if ($validated_login === false || $validated_pass === false) {
+        //     // Handle invalid input
+        //     $error = 'Invalid login inputs';
+        // }
+        if (!empty($login) && !empty($password) && !($validated_login === false || $validated_pass === false)) {
             // Increment attempt counter
             $_SESSION['login_attempts']++;
             $_SESSION['last_attempt_time'] = time();
@@ -40,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Execute query
             $result = $conn->query($sql);
+            // echo $result;
 
             if ($result->num_rows > 0) {
                 // Fetch the first row of results into an array
@@ -110,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 								<?php endif; ?>
 
 								<form action="connexion.php" method="post">
-								    <input type="text" class="w3-border w3-padding w3-margin" name="login" placeholder="Login" required><br />
+								    <input type="text" class="w3-border w3-padding w3-margin" name="login" placeholder="Login email" required><br />
 								    <input type="password" class="w3-border w3-padding w3-margin" name="password" placeholder="Password" required><br />
 								    <button type="submit" class="w3-button w3-theme w3-margin">Login</button><br />
 								</form>
