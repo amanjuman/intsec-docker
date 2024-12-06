@@ -32,6 +32,11 @@ function validateInput($input, $type = 'string', $max_length = 255, $options = [
 
     // Type validation
     switch ($type) {
+        case 'user':
+            if (!preg_match('/^[A-Za-z0-9-]+$/D', $input)) {
+                return false;
+            }
+            break;
         case 'string':
             if (!is_string($input)) {
                 return false;

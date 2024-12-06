@@ -34,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Check if login and password are provided
         // vulnerability detected: SQL Injection
             // Validate login input
-        $validated_login = validateInput($login, 'email', 25);
+        $validated_login = validateInput($login, 'user', 25);
         $validated_pass = validateInput($password, 'string', 15);
-
+        echo $validated_login . "  " . $validated_pass . $login . " " . $password;
         // if ($validated_login === false || $validated_pass === false) {
         //     // Handle invalid input
         //     $error = 'Invalid login inputs';
