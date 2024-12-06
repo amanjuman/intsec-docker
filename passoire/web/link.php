@@ -3,6 +3,11 @@
 include 'db_connect.php';
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+    header("Location: connexion.php");
+    exit();
+}
+
 // Check if 'file' parameter is present in the query string
 if (!isset($_GET['file'])) {
     // If not, redirect to home page or show an error message

@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Insert into the userinfos table
             
-				    $sql = "INSERT INTO userinfos (userid, birthdate, location, bio, avatar) VALUES (" . $user_id . ", '', '', '', '')";
+				    $sql = "INSERT INTO userinfos (userid, birthdate, location, bio, avatar) VALUES (" . $user_id . ", '1990-01-01', '', '', '')";
 						$conn->query($sql);
 
             $error = "<p class=\"success\">Registration successful! You can now <a href='connexion.php'>log in</a>.</p>";

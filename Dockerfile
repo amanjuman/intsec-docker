@@ -10,10 +10,7 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 # Add user for the application
 RUN useradd -ms /bin/bash passoire
 
-# Copy configuration and dependencies
-COPY home/passoire/flag_1 /home/passoire/
-COPY passoire/ /passoire/
-COPY flag_2/ /root/
+COPY passoire/config/node_dep.sh /passoire/config/node_dep.sh
 
 # Set working directory
 WORKDIR /passoire
@@ -40,6 +37,12 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+
+# Copy configuration and dependencies
+COPY home/passoire/flag_1 /home/passoire/
+COPY passoire/ /passoire/
+COPY flag_2/ /root/
 
 # Create `lls` command
 RUN cp /usr/bin/ls /usr/bin/lls
