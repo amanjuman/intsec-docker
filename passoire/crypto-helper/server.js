@@ -5,6 +5,7 @@ const cors = require('cors'); // Include the CORS package
 const app = express();
 const port = 3002;
 const host = "CONTAINER_IP";
+const crypto = require('crypto');
 
 // Middleware to parse request body
 app.use(cors());
@@ -44,18 +45,42 @@ app.post('/hash/:type', (req, res) => {
   });
 });
 
+// app.post('/encrypt/des', (req, res) => {
+//     const { text, key } = req.body;
+  
+//       const cmd =`openssl des-ecb -e -K ${key} -in <(echo "${text}") -base64`;
+//     console.log(cmd);
+//     exec(cmd,{shell: '/bin/bash'}, (error, stdout) => {
+//       if (error) {
+//         return res.status(500).send({error: error.message});
+//       }
+//       res.send({ encrypted: stdout.trim() });
+//     });
+//   });
+
 // DES Encrypt API
 app.post('/encrypt/des', (req, res) => {
-  const { text, key } = req.body;
-
-	const cmd =`openssl des-ecb -e -K ${key} -in <(echo "${text}") -base64`;
-  console.log(cmd);
-  exec(cmd,{shell: '/bin/bash'}, (error, stdout) => {
-    if (error) {
-      return res.status(500).send({error: error.message});
+  try {
+    const { text, key } = req.body;
+    
+    // Input validation
+    if (!text || !key || typeof text !== 'string' || typeof key !== 'string') {
+      return res.status(400).json({ error: 'Invalid input parameters' });
     }
-    res.send({ encrypted: stdout.trim() });
-  });
+
+    // Create key buffer of correct length
+    const keyBuffer = crypto.scryptSync(key, 'salt', 8); // DES uses 64-bit key
+    const iv = Buffer.alloc(8, 0); // DES uses 64-bit IV
+    
+    const cipher = crypto.createCipheriv('des-ecb', keyBuffer, iv);
+    let encrypted = cipher.update(text, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+    
+    res.json({ encrypted });
+  } catch (error) {
+    console.error('Encryption error:', error);
+    res.status(500).json({ error: 'Encryption failed' });
+  }
 });
 
 // DES Decrypt API
