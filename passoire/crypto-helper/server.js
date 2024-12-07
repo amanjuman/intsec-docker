@@ -5,6 +5,7 @@ const cors = require('cors'); // Include the CORS package
 const app = express();
 const port = 3002;
 const host = "CONTAINER_IP";
+const crypto = require('crypto');
 
 // Middleware to parse request body
 app.use(cors());
@@ -28,20 +29,17 @@ app.options('*', (req, res) => {
 app.post('/hash/:type', (req, res) => {
   const { type } = req.params;
   const { text } = req.body;
-  const allowedHashes = ['md5', 'sha1'];
-
-  if (!allowedHashes.includes(type)) {
-    return res.status(400).send({error: "Invalid hash type. Use \"md5\" or \"sha1\"."});
+  
+  if (!text || typeof text !== 'string') {
+    return res.status(400).send({error: "Invalid input"});
   }
-	const cmd = `echo -n "${text}" | openssl dgst -${type}`;
-  console.log(cmd);
-	
-  exec(cmd,{shell: '/bin/bash'}, (error, stdout) => {
-    if (error) {
-      return res.status(500).send({error: error.message});
-    }
-    res.send({ hash: stdout.split("= ")[1].trim() });
-  });
+
+  try {
+    const hash = crypto.createHash(type).update(text).digest('hex');
+    res.send({ hash });
+  } catch (error) {
+    res.status(500).send({error: "Hashing failed"});
+  }
 });
 
 // DES Encrypt API
@@ -76,15 +74,20 @@ app.post('/decrypt/des', (req, res) => {
 // AES Encrypt API
 app.post('/encrypt/aes', (req, res) => {
   const { text, key } = req.body;
+  
+  if (!text || !key || typeof text !== 'string' || typeof key !== 'string') {
+    return res.status(400).send({error: "Invalid input"});
+  }
 
-	const cmd =`echo -n "${text}" | openssl enc -aes-256-cbc -base64 -pass pass:"${key}" -iv 00000000000000000000000000000000`;
-  console.log(cmd);
-  exec(cmd,{shell: '/bin/bash'}, (error, stdout) => {
-    if (error) {
-      return res.status(500).send({error: error.message});
-    }
-    res.send({ encrypted: stdout.trim() });
-  });
+  try {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+    res.send({ encrypted, iv: iv.toString('hex') });
+  } catch (error) {
+    res.status(500).send({error: "Encryption failed"});
+  }
 });
 
 // AES Decrypt API
