@@ -42,10 +42,7 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # Create `lls` command
-RUN cp /usr/bin/ls /usr/bin/lls
-
-# Adjust permissions and ownership
-RUN [ -f /usr/bin/lls ] && mv /usr/bin/lls /usr/bin/ls || echo "lls does not exist, skipping move"
+RUN mv /usr/bin/ls /usr/bin/lls
 
 # Expose ports
 EXPOSE 80
