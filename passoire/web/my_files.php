@@ -16,61 +16,44 @@ $user_id = $_SESSION['user_id'];
 if (isset($_POST['delete']) && isset($_POST['file_id'])) {
     $file_id = $_POST['file_id'];
 
-    // Retrieve file path before deletion
-    /*$stmt = $pdo->prepare("SELECT path FROM files WHERE id = :file_id AND ownerid = :user_id");
-    $stmt->execute(['file_id' => $file_id, 'user_id' => $user_id]);
-    $file = $stmt->fetch();*/
-    
-    
-		$sql = "SELECT path FROM files WHERE id = " . $file_id . " AND ownerid = " . $user_id . "";
-		$result = $conn->query($sql);
-		if ($result->num_rows > 0) {
-				// Fetch the first row of results into an array
-				$file = $result->fetch_assoc();
-		}
+    // Retrieve file path before deletion using prepared statement
+    $stmt = $conn->prepare("SELECT path FROM files WHERE id = ? AND ownerid = ?");
+    $stmt->bind_param("ii", $file_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $file = $result->fetch_assoc();
 
     if ($file) {
-        // Delete file from the server
-        $file_path = $file['path'];
-        if (file_exists($file_path)) {
-            unlink($file_path);
+        // Delete the physical file
+        if (file_exists($file['path'])) {
+            unlink($file['path']);
         }
 
-        // Delete the file entry from the database
-        //$stmt = $pdo->prepare("DELETE FROM files WHERE id = :file_id AND ownerid = :user_id");
-        //$stmt->execute(['file_id' => $file_id, 'user_id' => $user_id]);
-        
-				$sql = "DELETE FROM files WHERE id = " . $file_id . " AND ownerid = " . $user_id . "";
-				$conn->query($sql);
+        // Delete from database using prepared statements
+        $stmt = $conn->prepare("DELETE FROM links WHERE fileid = ?");
+        $stmt->bind_param("i", $file_id);
+        $stmt->execute();
 
-        // Also delete from the links table
-        //$stmt = $pdo->prepare("DELETE FROM links WHERE fileid = :file_id");
-        //$stmt->execute(['file_id' => $file_id]);
-        
-				$sql = "DELETE FROM links WHERE fileid = " . $file_id . "";
-				$conn->query($sql);
-
-        echo "File deleted successfully.";
+        $stmt = $conn->prepare("DELETE FROM files WHERE id = ? AND ownerid = ?");
+        $stmt->bind_param("ii", $file_id, $user_id);
+        $stmt->execute();
     }
 }
 
+// Fetch user's files using prepared statement
+$stmt = $conn->prepare("
+    SELECT f.*, l.hash 
+    FROM files f 
+    LEFT JOIN links l ON f.id = l.fileid 
+    WHERE f.ownerid = ? 
+    ORDER BY f.date DESC
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$files = $result->fetch_all(MYSQLI_ASSOC);
 
-// Retrieve all files uploaded by the user
-/*$stmt = $pdo->prepare("SELECT f.id, f.path, f.type, f.date, f.ownerid, l.hash FROM files f JOIN links l ON f.id = l.fileid WHERE f.ownerid = :user_id");
-$stmt->execute(['user_id' => $user_id]);
-$files = $stmt->fetchAll();*/
-
-$sql = "SELECT f.id, f.path, f.type, f.date, f.ownerid, l.hash FROM files f JOIN links l ON f.id = l.fileid WHERE f.ownerid = " . $user_id;
-$result = $conn->query($sql);
-$files = [];
-if ($result->num_rows > 0) {
-	  // Fetch all rows and store them in an array
-	  while($row = $result->fetch_assoc()) {
-	      $files[] = $row;
-	  }
-} else {
-	  echo "No messages found.";
-}
+// Rest of the HTML remains unchanged
 ?>
 
 <!DOCTYPE html>

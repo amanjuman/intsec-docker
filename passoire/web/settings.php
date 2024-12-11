@@ -12,31 +12,17 @@ if (!isset($_SESSION['user_id'])) {
 // Get user ID
 $user_id = $_SESSION['user_id'];
 
-// Fetch current user info from the database
-/*$stmt = $pdo->prepare("
+// Fetch current user info from the database using prepared statement
+$stmt = $conn->prepare("
     SELECT u.login, u.email, ui.birthdate, ui.location, ui.bio, ui.avatar 
     FROM users u
     LEFT JOIN userinfos ui ON u.id = ui.userid
-    WHERE u.id = \"" . $user_id . "\"
+    WHERE u.id = ?
 ");
-$stmt->execute(['user_id' => $user_id]);
-$user = $stmt->fetch();*/
-
-
-$sql = "
-    SELECT u.login, u.email, ui.birthdate, ui.location, ui.bio, ui.avatar 
-    FROM users u
-    LEFT JOIN userinfos ui ON u.id = ui.userid
-    WHERE u.id = \"" . $user_id . "\"
-";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-		// Fetch the first row of results into an array
-		$user = $result->fetch_assoc();
-} else {
-		echo "No results found.";
-}
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
 
 // Function to handle avatar upload
 function uploadAvatar($file, $user_id) {
@@ -71,14 +57,21 @@ function uploadAvatar($file, $user_id) {
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
+    // Update user info using prepared statements
     $birthdate = $_POST['birthdate'];
-    $location = $_POST['location'];
-    $bio = $_POST['bio'];
-    $avatar_path = $user['avatar']; // Default to current avatar
+    $location = htmlspecialchars($_POST['location']);
+    $bio = htmlspecialchars($_POST['bio']);
+    
+    $stmt = $conn->prepare("
+        UPDATE userinfos 
+        SET birthdate = ?, location = ?, bio = ? 
+        WHERE userid = ?
+    ");
+    $stmt->bind_param("sssi", $birthdate, $location, $bio, $user_id);
+    $stmt->execute();
 
-    // Check if an avatar file was uploaded
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+    // Handle avatar upload if provided
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
         $avatar_upload_result = uploadAvatar($_FILES['avatar'], $user_id);
         if (strpos($avatar_upload_result, 'uploads/') !== false) {
             $avatar_path = $avatar_upload_result; // Set new avatar path if upload was successful
@@ -87,22 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Update the users table (email)
-    $sql = "UPDATE users SET email = '" . $email . "' WHERE id = " . $user_id;
-		$result = $conn->query($sql);
-
-
-
-    // Update the userinfos table (birthdate, location, bio, avatar)
-    
-    $sql = "
-        INSERT INTO userinfos (userid, birthdate, location, bio, avatar)
-        VALUES (" . $user_id . ", '" . $birthdate . "', '" . $location . "', '" . $bio . "', '" . $avatar_path . "')
-        ON DUPLICATE KEY UPDATE birthdate = '" . $birthdate . "', location = '" . $location . "', bio = '" . $bio . "', avatar = '" . $avatar_path . "'
-    ";
-		$result = $conn->query($sql);
-
-    echo "<p>Profile updated successfully!</p>";
+    // Redirect to refresh the page
+    header("Location: settings.php");
+    exit();
 }
 ?>
 

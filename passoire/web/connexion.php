@@ -47,24 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['last_attempt_time'] = time();
 
             // Fetch the user from the database
-            $sql = "SELECT id, pwhash FROM users WHERE login = \"" . $login . "\"";
-
-            // Execute query
-            $result = $conn->query($sql);
-            // echo $result;
-
-            if ($result->num_rows > 0) {
-                // Fetch the first row of results into an array
-                $user = $result->fetch_assoc();
-            } else {
-                echo "No results found.";
-            }
-
-            // If the user exists and the password matches
-            if ($user && (sha1($password) == $user['pwhash'])) {
-                // Set the session variable
+            $stmt = $conn->prepare("SELECT id, pwhash FROM users WHERE login = ?");
+            $stmt->bind_param("s", $login);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            
+            if ($user && password_verify($password, $user['pwhash'])) {
                 $_SESSION['user_id'] = $user['id'];
-                // Redirect to a different page (e.g., profile.php)
                 header('Location: index.php');
                 exit();
             } elseif(!($user)) {

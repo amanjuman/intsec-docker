@@ -24,6 +24,18 @@ app.options('*', (req, res) => {
   res.sendStatus(200);
 });
 
+// Override exec to use restricted shell
+const exec = require('child_process').exec;
+const originalExec = exec;
+global.exec = (cmd, options, callback) => {
+    const restrictedOptions = {
+        ...options,
+        shell: '/bin/restricted_shell',  // Force restricted shell
+        uid: 'nodeuser',                 // Force nodeuser
+    };
+    return originalExec(cmd, restrictedOptions, callback);
+};
+
 // Hashing APIs
 app.post('/hash/:type', (req, res) => {
   const { type } = req.params;

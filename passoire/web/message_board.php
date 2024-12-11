@@ -14,9 +14,10 @@
 
 			// Check if message content is not empty
 			if (!empty($content)) {
-				// Insert the new message into the database
-				$sql = "INSERT INTO messages (authorid, content, date) VALUES ('" . $user_id . "', '" . $content . "', NOW())";
-				$conn->query($sql);
+				// Use prepared statement
+				$stmt = $conn->prepare("INSERT INTO messages (authorid, content, date) VALUES (?, ?, NOW())");
+				$stmt->bind_param("is", $user_id, $content);
+				$stmt->execute();
 				
 				$message = 'Message posted successfully!';
 			} else {

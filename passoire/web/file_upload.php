@@ -19,20 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
-            // Save file info to database
+            // Use prepared statements for file info
+            $stmt = $conn->prepare("INSERT INTO files (type, ownerid, date, path) VALUES (?, ?, NOW(), ?)");
+            $stmt->bind_param("sis", $file['type'], $ownerid, $uploadFile);
+            $stmt->execute();
             
-	          $sql = "INSERT INTO files (type, ownerid, date, path) VALUES ('" .  $file['type'] . "', " .  $ownerid . ", NOW(), '" .  $uploadFile . "')";
-	          $conn->query($sql);
-             // Get the last inserted file ID
-						$file_id = $conn->insert_id;
-
-				    // Generate the hash for the link table
-				    $hash = sha1($ownerid . basename($file['name']));
-
-				    // Insert the file link into the links table
-	          $sql2 = "INSERT INTO links (fileid, secret, hash) VALUES (" . $file_id . ", 0, '" . $hash . "')";
-	          $conn->query($sql2);
-
+            $file_id = $conn->insert_id;
+            $hash = sha1($ownerid . basename($file['name']));
+            
+            // Insert file link using prepared statement
+            $stmt = $conn->prepare("INSERT INTO links (fileid, secret, hash) VALUES (?, 0, ?)");
+            $stmt->bind_param("is", $file_id, $hash);
+            $stmt->execute();
+            
             $message = "File uploaded successfully!";
         } else {
             $error = "Error uploading the file.";

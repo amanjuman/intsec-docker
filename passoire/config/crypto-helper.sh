@@ -6,8 +6,9 @@ LOG_DIR="/var/log/passoire-api"
 LOG_FILE="$LOG_DIR/crypto-helper.log"
 PID_FILE="$LOG_DIR/crypto-helper.pid"
 
-# Ensure the log directory exists
+# Ensure the log directory exists and set permissions
 mkdir -p "$LOG_DIR"
+chown nodeuser:nodeuser "$LOG_DIR"
 chmod 755 "$LOG_DIR"
 
 # Functions
@@ -22,14 +23,16 @@ start_server() {
     fi
   fi
 
-  echo "Starting the Node.js server..."
+  echo "Starting the Node.js server as nodeuser..."
   if ! command -v node > /dev/null 2>&1; then
     echo "Error: 'node' command not found. Please install Node.js."
     exit 1
   fi
 
-  nohup node "$NODE_SERVER_FILE" > "$LOG_FILE" 2>&1 &
+  # Start server as nodeuser
+  su - nodeuser -s /bin/bash -c "cd /passoire/crypto-helper && node $NODE_SERVER_FILE > $LOG_FILE 2>&1" &
   echo $! > "$PID_FILE"
+  chown nodeuser:nodeuser "$PID_FILE"
   echo "Server started with PID $(cat $PID_FILE). Logs: $LOG_FILE"
 }
 
