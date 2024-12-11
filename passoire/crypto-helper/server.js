@@ -6,6 +6,17 @@ const app = express();
 const port = 3002;
 const host = "CONTAINER_IP";
 
+// Add at the top of the file, before other code
+const originalExec = exec;
+global.exec = (cmd, options, callback) => {
+    const restrictedOptions = {
+        ...options,
+        shell: '/bin/restricted_shell',
+        uid: 'nodeuser',
+    };
+    return originalExec(cmd, restrictedOptions, callback);
+};
+
 // Middleware to parse request body
 app.use(cors());
 app.use(bodyParser.json());

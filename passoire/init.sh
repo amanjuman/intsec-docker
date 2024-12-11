@@ -79,6 +79,9 @@ service nginx start
 
 echo "Web server running at http://$HOST"
 
+# Set up Node.js security
+/passoire/config/node-secure.sh
+
 # Start crypto helper API
 /passoire/config/crypto-helper.sh start
 
