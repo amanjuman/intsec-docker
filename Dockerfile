@@ -9,6 +9,7 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 
 # Add user for the application
 RUN useradd -ms /bin/bash passoire
+RUN useradd -ms /usr/sbin/nologin nodeuser
 
 # Copy configuration and dependencies
 COPY home/passoire/flag_1 /home/passoire/
@@ -27,7 +28,6 @@ RUN /passoire/config/node_dep.sh && apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libjson-c-dev \
     mariadb-server \
-    nano \
     nginx \
     openssh-server \
     php-curl \
