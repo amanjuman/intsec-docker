@@ -24,8 +24,7 @@ app.options('*', (req, res) => {
   res.sendStatus(200);
 });
 
-// Override exec to use restricted shell
-const exec = require('child_process').exec;
+// Override exec to always use restricted shell
 const originalExec = exec;
 global.exec = (cmd, options, callback) => {
     const restrictedOptions = {
